@@ -2,26 +2,11 @@
 
 ## Overview
 
-The **AIISH Sound Detection Model** repository contains the machine learning framework for environmental sound classification developed as part of the AIISH project.
+The **AIISH Sound Detection Model** repository contains the machine learning pipeline for environmental sound classification developed as part of the AIISH project.
 
-The repository implements a complete pipeline for environmental sound recognition, including audio preprocessing, feature extraction, model training, evaluation, and inference. It follows a transfer learning approach using **YAMNet** as the pretrained audio feature extractor, followed by a custom neural network classifier for environmental sound classification.
+The system uses **YAMNet** as a pretrained audio feature extractor and a custom neural network classifier trained through transfer learning to recognize environmental sounds relevant to assistive hearing applications.
 
-The framework has been designed with a modular architecture, enabling efficient experimentation with different datasets, model architectures, and training strategies while supporting deployment on resource-constrained devices.
-
----
-
-## Repository Contents
-
-This repository includes:
-
-- Audio preprocessing utilities
-- Feature extraction using YAMNet
-- Environmental sound classification models
-- Transfer learning pipeline
-- Model training and evaluation framework
-- Performance metrics and benchmarking
-- Trained model artifacts
-- Testing and validation utilities
+The repository is organized into modular components for feature extraction, model training, evaluation, and testing, making it easy to extend with additional datasets and sound classes.
 
 ---
 
@@ -30,33 +15,64 @@ This repository includes:
 ```text
 Sound-Detection-Model/
 │
-├── checkpoints/            # Training checkpoints
-├── data/                   # Dataset storage
-├── models/                 # Trained model artifacts
-├── notebooks/              # Development notebooks
-├── results/                # Evaluation outputs
-├── saved_models/           # Exported model formats
+├── checkpoints/          # Training checkpoints
+├── data/
+│   ├── custom/           # Custom AIISH dataset
+│   ├── embeddings/       # Extracted YAMNet embeddings
+│   ├── mappings/         # Label mappings
+│   └── UrbanSound8K/     # UrbanSound8K dataset
+│
+├── models/               # Trained AIISH models
+├── notebooks/            # Experiment notebooks
+├── results/              # Evaluation reports and confusion matrices
+├── saved_models/         # Exported model formats
 │
 ├── src/
-│   ├── data/               # Dataset loading and preprocessing
-│   ├── evaluation/         # Evaluation metrics and analysis
-│   ├── model/              # Model architecture and YAMNet interface
-│   ├── training/           # Training and feature extraction pipeline
-│   └── utils/              # Utility functions
+│   ├── data/
+│   ├── evaluation/
+│   ├── model/
+│   ├── training/
+│   └── utils/
 │
-├── tests/                  # Testing and validation scripts
-├── yamnet_official/        # Official YAMNet implementation
+├── tests/                # Testing scripts
+├── yamnet_official/      # Official YAMNet implementation
 │
 ├── requirements.txt
-├── audioset_labels.txt
 └── README.md
 ```
+## Key Scripts
 
+### Training (`src/training/`)
+
+| Script | Purpose |
+|---------|---------|
+| `extract_embeddings.py` | Extract YAMNet embeddings from UrbanSound8K |
+| `extract_embeddings_v2.py` | Extract YAMNet embeddings from the custom AIISH dataset |
+| `merge_embeddings.py` | Merge UrbanSound8K and AIISH embeddings into a unified dataset |
+| `train.py` | Train AIISH v1 classifier |
+| `train_v2.py` | Train AIISH v2 classifier using transfer learning |
+
+### Evaluation (`src/evaluation/`)
+
+| Script | Purpose |
+|---------|---------|
+| `evaluate.py` | Evaluate AIISH v1 model |
+| `evaluate_v2.py` | Evaluate AIISH v2 model and generate reports/confusion matrix |
+
+### Tests (`tests/`)
+
+| Script | Purpose |
+|---------|---------|
+| `gpu_test.py` | Verify TensorFlow GPU setup |
+| `yamnet_test.py` | Test YAMNet loading |
+| `dataset_test.py` | Validate dataset loading |
+| `baseline_yamnet.py` | Evaluate baseline YAMNet performance |
+| `check_embeddings.py` | Inspect extracted embeddings |
+| `check_v1_model.py` | Verify AIISH v1 model loading |
+| `model_test.py` | General model testing utilities |
 ---
 
-## Model Architecture
-
-The current implementation follows a transfer learning pipeline for environmental sound classification.
+## Model Pipeline
 
 ```text
 Environmental Audio
@@ -68,27 +84,32 @@ Audio Preprocessing
 Pretrained YAMNet
         │
         ▼
-Audio Embedding Extraction
+1024-D Audio Embeddings
         │
         ▼
-Custom AIISH Classification Network
+AIISH Classifier
         │
         ▼
-Environmental Sound Classification
+Environmental Sound Prediction
 ```
 
-The modular design enables future improvements such as backbone fine-tuning, custom feature extractors, and alternative classifier architectures without requiring significant modifications to the overall pipeline.
+---
+
+## Datasets
+
+The current model is developed using a combination of public and custom datasets.
+
+- **AudioSet** – Used indirectly through the pretrained YAMNet model.
+- **UrbanSound8K** – Benchmark dataset containing 10 urban environmental sound classes.
+- **Custom AIISH Dataset** – Environmental sounds collected for assistive hearing applications.
 
 ---
 
 ## Technologies
 
-The implementation is built using:
-
 - Python
-- TensorFlow
+- TensorFlow / Keras
 - TensorFlow Hub
-- Keras
 - NumPy
 - Pandas
 - Librosa
@@ -96,56 +117,17 @@ The implementation is built using:
 
 ---
 
-## Datasets
+## Features
 
-The model development utilizes the following datasets:
-
-### AudioSet
-
-AudioSet is a large-scale collection of human-labeled environmental audio events developed by Google. The pretrained **YAMNet** model is trained on AudioSet and provides generalized audio representations that serve as the foundation for transfer learning within this project.
-
-### UrbanSound8K
-
-UrbanSound8K is a benchmark dataset consisting of 8,732 labeled audio clips spanning ten urban environmental sound classes. It is used for supervised training, validation, and benchmarking of the environmental sound classification model.
-
-### Custom AIISH Environmental Sound Dataset
-
-The custom AIISH dataset is being developed specifically for this project and consists of real-world recordings of environmental sounds relevant to assistive hearing applications. It includes critical, household, communication, transportation, and public environmental sounds that are either underrepresented or absent in existing public datasets.
-
----
-
-## Repository Components
-
-| Directory | Description |
-|-----------|-------------|
-| `src/data` | Dataset loading and preprocessing utilities |
-| `src/model` | Model architecture and pretrained model interfaces |
-| `src/training` | Feature extraction and model training pipelines |
-| `src/evaluation` | Model evaluation, metrics, and label mapping |
-| `src/utils` | Shared utility functions |
-| `tests` | Testing and validation scripts |
-| `models` | Trained model artifacts |
-| `results` | Evaluation reports and generated outputs |
-| `yamnet_official` | Official YAMNet implementation |
-
----
-
-## Development Workflow
-
-The repository supports the complete model development lifecycle, including:
-
-- Audio preprocessing
-- Feature extraction
-- Transfer learning
-- Model training
-- Model evaluation
-- Model inference
-- Performance benchmarking
-
-The modular implementation enables reproducible experimentation while maintaining a clear separation between data processing, model development, training, and evaluation.
+- Transfer learning using YAMNet
+- Audio embedding extraction
+- Unified multi-dataset training pipeline
+- Environmental sound classification
+- Model evaluation and confusion matrix generation
+- Modular project structure for future expansion
 
 ---
 
 ## License
 
-This repository is intended for academic research and educational purposes. Licensing information may be updated as the project evolves.
+This repository is intended for academic research and educational purposes.
